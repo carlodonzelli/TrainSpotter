@@ -23,6 +23,48 @@
     return self;
 }
 
+
+//next four methods are used to scrool up view while keyboard appears
+-(void)viewWillAppear:(BOOL)animated {
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+    
+}
+
+-(void)viewWillDisappear:(BOOL)animated
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)keyboardWillShow:(NSNotification*)notification
+{
+    CGSize keyboardSize = [[[notification userInfo] objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
+    UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, keyboardSize.height, 0.0);
+    
+    self.scroller.contentInset = contentInsets;
+    self.scroller.scrollIndicatorInsets = contentInsets;
+    
+    CGRect rect = self.view.frame;
+    rect.size.height -= keyboardSize.height;
+    
+    if (!CGRectContainsPoint(rect, self.arrivalStation.frame.origin)) {
+        NSLog(@"frame origin y: %f",  self.arrivalStation.frame.origin.y);
+        NSLog(@"keyboard height: %f",  keyboardSize.height);
+        NSLog(@"frame size height: %f",  self.arrivalStation.frame.origin.y);
+        CGPoint scrollPoint = CGPointMake(0.0, self.arrivalStation.frame.origin.y - (keyboardSize.height - self.arrivalStation.frame.size.height));
+        [self.scroller setContentOffset:scrollPoint animated:NO];
+    }
+}
+
+- (void)keyboardWillHide:(NSNotification *)notification
+{
+    UIEdgeInsets contentInsets = UIEdgeInsetsZero;
+    self.scroller.contentInset = contentInsets;
+    self.scroller.scrollIndicatorInsets = contentInsets;
+}
+
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -73,19 +115,19 @@
     [[[UIAlertView alloc] initWithTitle:@"Logout"
                                 message:@"Are you sure you want to logout?"
                                delegate:self
-                      cancelButtonTitle:@"No" 
+                      cancelButtonTitle:@"No"
                       otherButtonTitles:@"Yes", nil] show];
 }
 
 //UIAlertView Delegate method
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     
-        //if user clic yes (wants to logout)
-        if (buttonIndex == 1) {
-            [PFUser logOut];
-            NSLog(@"Logged Out");
-            [self performSegueWithIdentifier:@"fromCheckInToHome" sender:self];
-        }
+    //if user clic yes (wants to logout)
+    if (buttonIndex == 1) {
+        [PFUser logOut];
+        NSLog(@"Logged Out");
+        [self performSegueWithIdentifier:@"fromCheckInToHome" sender:self];
+    }
 }
 
 @end
