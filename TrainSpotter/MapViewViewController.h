@@ -10,8 +10,15 @@
 #import <CoreLocation/CoreLocation.h>
 #import <MapKit/MapKit.h>
 
-@interface MapViewViewController : UIViewController <MKMapViewDelegate>
+@interface MapViewViewController : UIViewController <MKMapViewDelegate, CLLocationManagerDelegate>
 
 @property (nonatomic, retain) IBOutlet MKMapView *mapView;
+@property (strong, nonatomic) CLLocation *location;
+@property (nonatomic, retain) CLLocationManager *locationManager;
+
+- (IBAction)startLocationServices:(id)sender;
+- (IBAction)stopLocationServices:(id)sender;
+
+
 
 @end

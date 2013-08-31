@@ -8,11 +8,22 @@
 
 #import "MapViewViewController.h"
 #import "MapViewAnnotation.h"
+#import "MapViewDetailViewController.h"
 
 
 @interface MapViewViewController ()
 
+@property (strong, nonatomic) NSString *currentTime;
+@property (strong, nonatomic) NSString *currentLat;
+@property (strong, nonatomic) NSString *currentLong;
+@property (strong, nonatomic) NSString *currentAltitude;
+@property (strong, nonatomic) NSString *currentHorizontalAcc;
+@property (strong, nonatomic) NSString *currentVerticalAcc;
+@property (strong, nonatomic) NSString *currentSpeed;
+@property (strong, nonatomic) NSString *currentCourse;
+
 @end
+
 
 #define BOLOGNA_LATITUDE 44.506136
 #define BOLOGNA_LONGITUDE 11.343405
@@ -22,8 +33,7 @@
 
 @implementation MapViewViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
@@ -38,6 +48,64 @@
     self.mapView.delegate = self;
     _mapView.showsUserLocation = YES;
     _mapView.userTrackingMode = MKUserTrackingModeFollow;
+    
+    self.locationManager.delegate = self;
+    self.location = [[CLLocation alloc] init];
+    
+    /*if([CLLocationManager locationServicesEnabled]){
+        
+        // Location Services Are Enabled
+        
+        switch([CLLocationManager authorizationStatus]){
+            case kCLAuthorizationStatusAuthorized:
+                // we can access location services
+                break;
+            case kCLAuthorizationStatusDenied:
+                // denied by user
+                break;
+            case kCLAuthorizationStatusRestricted:
+                // restricted by parental controls
+                break;
+            case kCLAuthorizationStatusNotDetermined: ;
+                // unable to determine, possibly disabled
+        }
+    }
+    else{
+        // Location Services Are Disabled
+        
+    }*/
+    
+    
+    
+}
+
+-(void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
+    
+    NSLog(@"Location Manager Error: %@", [error description]);
+    //inform here the user maybe with an UIAlert
+}
+
+-(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
+    
+    self.location = locations.lastObject;
+    //NSLog(@"%@", self.location.description);
+    
+    
+    //MKCoordinateRegion userLocation = MKCoordinateRegionMakeWithDistance(newLocation.coordinate, 1500.0, 1500.0);
+    //[regionsMapView setRegion:userLocation animated:YES];
+ 
+    //print the last updated location
+    //NSLog(@"%@", [locations lastObject]);
+
+    self.currentLat = [NSString stringWithFormat:@"%f", self.location.coordinate.latitude];
+    self.currentLong = [NSString stringWithFormat:@"%f", self.location.coordinate.longitude];
+    self.currentAltitude = [NSString stringWithFormat:@"%f", self.location.altitude];
+    self.currentHorizontalAcc = [NSString stringWithFormat:@"%f", self.location.horizontalAccuracy];
+    self.currentVerticalAcc = [NSString stringWithFormat:@"%f", self.location.verticalAccuracy];
+    self.currentTime = [NSString stringWithFormat:@"%@", self.location.timestamp];
+    self.currentSpeed = [NSString stringWithFormat:@"%f", self.location.speed];
+    self.currentCourse = [NSString stringWithFormat:@"%f", self.location.course];
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -163,4 +231,58 @@
     return myCircle;
 }
 
+
+//method to pass data to the map detail view
+-(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    
+    MapViewDetailViewController *mapDetail = [segue destinationViewController];
+    
+    mapDetail.time = self.currentTime;
+    mapDetail.latitude = self.currentLat;
+    mapDetail.longitude = self.currentLong;
+    mapDetail.altitiude = self.currentAltitude;
+    mapDetail.course = self.currentCourse;
+    mapDetail.speed = self.currentSpeed;
+    mapDetail.horizontalAcc = self.currentHorizontalAcc;
+    mapDetail.verticalAcc = self.currentVerticalAcc;
+    
+}
+
+- (IBAction)startLocationServices:(id)sender {
+    
+    if ([CLLocationManager locationServicesEnabled] == YES) {
+        NSLog(@"Location Service Enabled");
+    }
+    else {
+        //tell the user that location updates are needed and the purpose
+    }
+    
+    //create location manager only if there isn't another one
+    if (self.locationManager == nil) {
+        //create location manager
+        self.locationManager = [CLLocationManager new];
+    }
+    
+    //set its delegate
+    [self.locationManager setDelegate:self];
+    
+    if ([self conformsToProtocol:@protocol(CLLocationManagerDelegate)]) {
+        NSLog(@"Set to receive location updates!");
+    }
+    //set config
+    [self.locationManager setDesiredAccuracy:kCLLocationAccuracyBest];
+    [self.locationManager setDistanceFilter:kCLDistanceFilterNone];
+    //start location services
+    [self.locationManager startUpdatingLocation];
+    
+    //maybe can use: initial user location then updates if significant distance (doesn't use Acuracy or Distance Filters
+    NSLog(@"Location Services STARTED");
+}
+
+- (IBAction)stopLocationServices:(id)sender {
+    
+    [self.locationManager stopUpdatingLocation];
+    [self.locationManager setDelegate:nil];
+    NSLog(@"Location Services STOPPED");
+}
 @end
