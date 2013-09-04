@@ -31,12 +31,10 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
     
 }
-
 -(void)viewWillDisappear:(BOOL)animated
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
-
 - (void)keyboardWillShow:(NSNotification*)notification
 {
     CGSize keyboardSize = [[[notification userInfo] objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
@@ -49,14 +47,12 @@
     rect.size.height -= keyboardSize.height;
     
     if (!CGRectContainsPoint(rect, self.arrivalStation.frame.origin)) {
-        NSLog(@"frame origin y: %f",  self.arrivalStation.frame.origin.y);
-        NSLog(@"keyboard height: %f",  keyboardSize.height);
-        NSLog(@"frame size height: %f",  self.arrivalStation.frame.origin.y);
-        CGPoint scrollPoint = CGPointMake(0.0, self.arrivalStation.frame.origin.y - (keyboardSize.height - self.arrivalStation.frame.size.height));
+        
+        CGPoint scrollPoint = CGPointMake(0.0, self.arrivalStation.frame.origin.y - (keyboardSize.height - self.arrivalStation.frame.size.height - 20));
+        // _commentView.frame = CGRectMake(0, 0, _commentView.frame.size.width, _commentView.frame.size.height - keyboardSize.height);
         [self.scroller setContentOffset:scrollPoint animated:NO];
     }
 }
-
 - (void)keyboardWillHide:(NSNotification *)notification
 {
     UIEdgeInsets contentInsets = UIEdgeInsetsZero;
@@ -65,13 +61,16 @@
 }
 
 
+
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
+    //creating a label with username
     _loggedUser.text = [PFUser currentUser].username;
+    
     [_scroller setScrollEnabled:YES];
-    [_scroller setContentSize:CGSizeMake(329, 600)];
+    [_scroller setContentSize:CGSizeMake(280, 320)];
 }
 
 - (void)didReceiveMemoryWarning
@@ -82,21 +81,24 @@
 
 - (IBAction)doCheckIn:(id)sender {
     
+    //retrieve the current user
     PFUser *user = [PFUser currentUser];
     
+    //creatin temp strings where to save input data
     NSString *trainNum = [NSString stringWithFormat: @"%@", _trainNumber.text];
     NSString *depStation = [NSString stringWithFormat: @"%@", _departureStation.text];
     NSString *arrStation = [NSString stringWithFormat: @"%@", _arrivalStation.text];
     
+    //creating a new object with class and properties
     PFObject *checkIn = [PFObject objectWithClassName:@"CheckIn"];
     [checkIn setObject:trainNum forKey:@"trainNumber"];
     [checkIn setObject:depStation forKey:@"departureStation"];
     [checkIn setObject:arrStation forKey:@"arrivalStation"];
     [checkIn setObject:user forKey:@"user"];
-    [checkIn save];
+    [checkIn saveInBackground];
     
     
-    NSLog(@"%@, %@, %@", trainNum, depStation, arrStation);
+    NSLog(@"Checked in train n°: %@, From %@ to %@", trainNum, depStation, arrStation);
     
 }
 

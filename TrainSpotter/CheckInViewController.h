@@ -16,6 +16,7 @@
 @property (weak, nonatomic) IBOutlet UITextField *trainNumber;
 @property (weak, nonatomic) IBOutlet UITextField *departureStation;
 @property (weak, nonatomic) IBOutlet UITextField *arrivalStation;
+
 @property (weak, nonatomic) IBOutlet UIScrollView *scroller;
 
 - (IBAction)doCheckIn:(id)sender;
