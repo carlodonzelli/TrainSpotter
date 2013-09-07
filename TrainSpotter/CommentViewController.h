@@ -7,12 +7,18 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <Parse/Parse.h>
+#import "FormViewController.h"
+#import "AppDelegate.h"
+#define theAppDelegate ((AppDelegate *)[[UIApplication sharedApplication] delegate])
 
 @interface CommentViewController : UIViewController
 
 @property (weak, nonatomic) IBOutlet UITextView *commentView;
+@property (weak, nonatomic) NSString *currentObjectId;
 
 - (IBAction)dismissKeyboardOnTap:(id)sender;
+- (IBAction)submitComment:(id)sender;
 
 
 @end

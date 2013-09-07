@@ -7,6 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <Parse/Parse.h>
+#import "AppDelegate.h"
+#define theAppDelegate ((AppDelegate *)[[UIApplication sharedApplication] delegate])
 
 @interface FormViewController : UIViewController <UIScrollViewDelegate>
 

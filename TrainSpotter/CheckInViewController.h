@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 #import <Parse/Parse.h>
+#import "AppDelegate.h"
+#define theAppDelegate ((AppDelegate *)[[UIApplication sharedApplication] delegate])
 
 @interface CheckInViewController : UIViewController
 
@@ -18,6 +20,7 @@
 @property (weak, nonatomic) IBOutlet UITextField *arrivalStation;
 
 @property (weak, nonatomic) IBOutlet UIScrollView *scroller;
+@property (nonatomic, strong) UIActivityIndicatorView *activityIndicatorView;
 
 - (IBAction)doCheckIn:(id)sender;
 - (IBAction)textFieldDoneEditing:(id)sender;

@@ -7,15 +7,20 @@
 //
 
 #import "FormViewController.h"
+#import "CommentViewController.h"
 
 @interface FormViewController ()
+
+@property NSMutableArray *ratingArray;
 
 @end
 
 @implementation FormViewController
 
 int pageCount = 4;
-int currentPage = 1;
+int currentPage = 0;
+int nextPage = 0;
+//PFObject *feedback;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -23,6 +28,7 @@ int currentPage = 1;
     if (self) {
         // Custom initialization
     }
+    
     return self;
 }
 
@@ -33,6 +39,7 @@ int currentPage = 1;
     //_ratingSegment
     [_ratingSegment setSelectedSegmentIndex:-1];
     [_nextBarButton setEnabled:NO];
+    _ratingArray = [[NSMutableArray alloc] initWithCapacity:4];
     
     //_scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, 320, 480)];
     
@@ -46,18 +53,18 @@ int currentPage = 1;
     [_scrollView setContentSize:CGSizeMake(280*pageCount, 280)];
     
     //NSArray *titleArray = @[@"Smell", @"Capacity", @"Service", @"Temperature"];
-    NSArray *questionArray = @[@"Smell question", @"Capacity question", @"Service question", @"Temperature question"];
+    NSArray *questionArray = @[@"Cleaning Question", @"Stink Question", @"Crowding Question", @"Quality of Service Question"];
     
     for(int i = 0; i < pageCount; i++){
         
         //Create your labels and segmented control here
         //NSLog(@"Creatin labels....");
-//        UILabel *label = [[UILabel alloc] init];
-//        [label setText:[titleArray objectAtIndex:i]];
-//        label.backgroundColor = [UIColor clearColor];
-//        label.textColor = [UIColor whiteColor];
-//        label.frame = CGRectMake(280*i,0,280,280);
-//        [_scrollView addSubview:label];
+        //        UILabel *label = [[UILabel alloc] init];
+        //        [label setText:[titleArray objectAtIndex:i]];
+        //        label.backgroundColor = [UIColor clearColor];
+        //        label.textColor = [UIColor whiteColor];
+        //        label.frame = CGRectMake(280*i,0,280,280);
+        //        [_scrollView addSubview:label];
         UITextField *questionField = [[UITextField alloc] init];
         questionField.frame = CGRectMake(280*i,0,280,280);
         //questionField.borderStyle = UITextBorderStyleLine;
@@ -75,36 +82,74 @@ int currentPage = 1;
         //questionField.delegate = self;
         [_scrollView addSubview:questionField];
         
-        
     }
-    
+    //NSLog(@"Current object ID form view: %@", theAppDelegate.objectID);
+
 }
-    
+
 - (IBAction)nextButtonPressed:(id)sender {
     
     [_ratingSegment setSelectedSegmentIndex:-1];
     
     currentPage = (_scrollView.contentOffset.x/280);
-    int nextPage = currentPage + 1;
-    NSLog(@"Next page: %d", nextPage);
-    NSLog(@"Current progress: %f", ((((float)nextPage + 1) * 2) / 10));
+    nextPage = currentPage + 1;
+    //NSLog(@"Next page: %d", nextPage);
+    //NSLog(@"Current progress: %f", ((((float)nextPage + 1) * 2) / 10));
     _currentProgress.progress =  ((((float)nextPage + 1) * 2) / 10);
     
     [_scrollView scrollRectToVisible:CGRectMake(280*nextPage, _scrollView.frame.origin.y, _scrollView.frame.size.width, _scrollView.frame.size.height) animated:YES];
-//    NSLog(@"current X: %d", 280*nextPage);
-//    NSLog(@"current Y: %f", _scrollView.frame.origin.y);
-//    NSLog(@"current width: %f", _scrollView.frame.size.width);
-//    NSLog(@"current height: %f", _scrollView.frame.size.height);
+    //    NSLog(@"current X: %d", 280*nextPage);
+    //    NSLog(@"current Y: %f", _scrollView.frame.origin.y);
+    //    NSLog(@"current width: %f", _scrollView.frame.size.width);
+    //    NSLog(@"current height: %f", _scrollView.frame.size.height);
     [_nextBarButton setEnabled:NO];
     
+    //going to the last question to the last step of the survey
     if (nextPage == 4) {
-        NSLog(@"going to final step");
-//        UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"MainStoryboard.storyboard" bundle:nil];
-//        UIViewController *commentView = [mainStoryboard instantiateViewControllerWithIdentifier:@"finalStepController"];
-//        [self presentViewController:commentView animated:YES completion:nil];
-        [self performSegueWithIdentifier:@"fromQuestionToFinal" sender:self];
+        
+        //retrieve the current user
+        //PFUser *user = [PFUser currentUser];
+        
+        //creatin temp strings where to save input data
+        NSString *cleaningRate = [NSString stringWithFormat: @"%@", [_ratingArray objectAtIndex:0]];
+        NSString *stinkRate = [NSString stringWithFormat: @"%@", [_ratingArray objectAtIndex:1]];
+        NSString *crowdingRate = [NSString stringWithFormat: @"%@", [_ratingArray objectAtIndex:2]];
+        NSString *qualityRate = [NSString stringWithFormat: @"%@", [_ratingArray objectAtIndex:3]];
+        
+        NSString *currentId = theAppDelegate.objectID;
+        
+        PFQuery *query = [PFQuery queryWithClassName:@"CheckIn"];
+        [query getObjectInBackgroundWithId:currentId block:^(PFObject *feedback, NSError *error) {
+            
+            // Now let's update it with some new data.
+            [feedback setObject:cleaningRate forKey:@"cleaningValue"];
+            [feedback setObject:stinkRate forKey:@"stinkValue"];
+            [feedback setObject:crowdingRate forKey:@"crowdingValue"];
+            [feedback setObject:qualityRate forKey:@"qualityValue"];
+            //[feedback setObject:user forKey:@"user"];
+            
+            [feedback saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+                if (succeeded) {
+                    NSLog(@"Saved in FormView.");
+                    NSLog(@"Submitted Values: %@, %@, %@, %@.", [_ratingArray objectAtIndex:0], [_ratingArray objectAtIndex:1], [_ratingArray objectAtIndex:2], [_ratingArray objectAtIndex:3]);
+                    //NSLog(@"Current object ID checkin view: %@", currentId);
+                    [self performSegueWithIdentifier:@"fromQuestionToFinal" sender:self];
+                } else {
+                    NSLog(@"Something wrong happened: %@", error);
+                }
+            }];            
+        }];
     }
 }
+
+////method to pass data from this view to the comment view
+//-(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+//    
+//    CommentViewController *commentView = [segue destinationViewController];
+//    commentView.currentObjectId = [feedback objectId];
+//    
+//}
+
 
 
 - (void)didReceiveMemoryWarning
@@ -114,8 +159,14 @@ int currentPage = 1;
 }
 
 - (IBAction)selectRate:(id)sender {
+    
+    //NSLog(@"Current page: %d", currentPage);
+    //NSLog(@"Next page: %d", nextPage);
+    
     NSString *value = [_ratingSegment titleForSegmentAtIndex:_ratingSegment.selectedSegmentIndex];
-    NSLog(@"Selected Value: %@", value);
+    //NSLog(@"Selected Value: %@", value);
+    
+    [_ratingArray addObject:value];
     
     [_nextBarButton setEnabled:YES];
     
