@@ -10,9 +10,13 @@
 #import "WeatherForecast.h"
 #import <CoreLocation/CoreLocation.h>
 #import <Parse/Parse.h>
+#import "AppDelegate.h"
+#define theAppDelegate ((AppDelegate *)[[UIApplication sharedApplication] delegate])
 
 @interface CheckWeatherViewController : UIViewController <CLLocationManagerDelegate>
 
+
+@property (nonatomic, strong) NSArray *dataSourceArray;
 //bool var that tells if monitor or not our location
 @property (nonatomic) BOOL updateLocation;
 //istance of CLLocationManager

@@ -71,14 +71,19 @@
         NSLog(@"Destination Location selected");
         //destination location is selected, put here CHECK-IN destination location
         
-//        PFQuery *destLocationQuery = [PFQuery queryWithClassName:@"CheckIn"];
-//        [destLocationQuery whereKey:@"user" equalTo:[PFUser currentUser]];
-//        [destLocationQuery selectKeys:@[@"arrivalStation"]];
+        NSString *currentId = theAppDelegate.objectID;
         
-        
-        NSString *convertedLocation = [self retrieveCoordinates:@"Pesaro"];
-        NSLog(@"Destination Location: %@", convertedLocation);
-        [self.forecast queryServiceWithState:@"IT" andCity:convertedLocation withParent:self];
+        PFQuery *query = [PFQuery queryWithClassName:@"CheckIn"];
+        [query getObjectInBackgroundWithId:currentId block:^(PFObject *currentLoc, NSError *error) {
+            // Do something with the returned PFObject in the gameScore variable.
+            //NSLog(@"%@", currentLoc);
+            NSString *currentDestinationLocation = [currentLoc objectForKey:@"arrivalStation"];
+            NSLog(@"Checking the weather for %@", currentDestinationLocation);
+            NSString *convertedLocation = [self retrieveCoordinates:currentDestinationLocation];
+            NSLog(@"Destination Location: %@", convertedLocation);
+            [self.forecast queryServiceWithState:@"IT" andCity:convertedLocation withParent:self];
+            
+        }];
     }
     NSLog(@"View Refreshed");
 }
