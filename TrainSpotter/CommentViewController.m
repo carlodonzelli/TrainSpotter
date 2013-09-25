@@ -80,6 +80,7 @@
                 NSLog(@"User said: %@", userComment);
                 NSLog(@"Saved in Comment View.");
                 //NSLog(@"Current object ID checkin view: %@", currentId);
+                
             } else {
                 NSLog(@"Something wrong happened: %@", error);
             }

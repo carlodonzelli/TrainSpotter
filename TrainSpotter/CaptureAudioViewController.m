@@ -23,7 +23,10 @@
 
 #import "CaptureAudioViewController.h"
 
-@interface CaptureAudioViewController ()
+@interface CaptureAudioViewController () {
+    
+    int finalSum;
+}
 
 @end
 
@@ -66,6 +69,11 @@
     _averageValues = [[NSMutableArray alloc] init];
     //[self.equalizerBar setFrame:CGRectMake(0, 0, 240, 25)];
     
+    //code added to add compatibility with iOS 7
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+    [audioSession setActive:YES error:nil];
+    
     //assures that when the user taps the Record button later, the recording will start immediately.
     [self.recorder prepareToRecord];
     //_recordTime = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(updateLabels) userInfo:nil repeats:YES];
@@ -85,8 +93,8 @@
     NSNumber *num = [NSNumber numberWithFloat:tempPeak];
     [_averageValues addObject:num];
     
-    NSLog(@"VALUE: %d", peakValue);
-    NSLog(@"TEMP PEAK: %f", tempPeak);
+    //NSLog(@"VALUE: %d", peakValue);
+    //NSLog(@"TEMP PEAK: %f", tempPeak);
     
     //update max reached peak
     if (peakValue < tempPeak) {
@@ -103,6 +111,7 @@
 
 - (IBAction)toggleRecording:(id)sender {
     
+    
     if ([self.recorder isRecording])
     {
         //stop button pressed
@@ -113,7 +122,7 @@
         //calculating final average
         NSNumber *tempNumber;
         float sum = 0;
-        int finalSum = 0;
+        finalSum = 0;
         for (tempNumber in _averageValues)
         {
             int aInt = [tempNumber intValue];
@@ -122,13 +131,29 @@
         finalSum = sum / [_averageValues count];
         self.averageFinalValueLabel.text =[NSString stringWithFormat:@"%i", finalSum];
         
-        [self.recordButton setTitle:@"Start Recording" forState:UIControlStateNormal];
+        [self.recordButton setTitle:@"Start" forState:UIControlStateNormal];
+        
+        if (self.submitNoiseButton.enabled == NO) {
+            [self.submitNoiseButton setEnabled:YES];
+        }
+        
+        if (self.playButton.enabled == NO) {
+            [self.playButton setEnabled:YES];
+        }
     }
     else {
         //record button pressed
         [self.recorder record];
         _recordTime = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(updateLabels) userInfo:nil repeats:YES];
-        [self.recordButton setTitle:@"Stop Recording" forState:UIControlStateNormal];
+        [self.recordButton setTitle:@"Stop" forState:UIControlStateNormal];
+        
+        if (self.submitNoiseButton.enabled == YES) {
+            [self.submitNoiseButton setEnabled:NO];
+        }
+        
+        if (self.playButton.enabled == YES) {
+            [self.playButton setEnabled:NO];
+        }
     }
 }
 
@@ -136,16 +161,19 @@
 - (void)audioRecorderDidFinishRecording:(AVAudioRecorder *)recorder successfully:(BOOL)flag
 {
     _newRecordingAvailable = flag;
-    [self.recordButton setTitle:@"Start Recording" forState:UIControlStateNormal];
+    [self.recordButton setTitle:@"Start" forState:UIControlStateNormal];
 }
 
 - (IBAction)togglePlaying:(id)sender {
+    
+//    Never mind, I got it. If you are trying to playback a sound and its very faint then use this code - UInt32 sessionCategory = kAudioSessionCategory_MediaPlayback; AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(sessionCategory), &sessionCategory);AudioSessionSetActive(true);
+    
     
     //if audio player is active, pause it and reset the button title to "Play"
     if (self.player.playing)
     {
         [self.player pause];
-        [self.playButton setTitle:@"Play Recording" forState:UIControlStateNormal];
+        [self.playButton setTitle:@"Play" forState:UIControlStateNormal];
     }
     //else if a new recording is available, re-create the audio player with the new file
     else if (_newRecordingAvailable)
@@ -160,21 +188,22 @@
         } else {
             NSLog(@"Error initializing player: %@", error);
         }
-        [self.playButton setTitle:@"Pause Recording" forState:UIControlStateNormal];
+        [self.playButton setTitle:@"Pause" forState:UIControlStateNormal];
         _newRecordingAvailable = NO;
     }
     //a player has been created but is not active (so it's paused) and should be restarted
     else if (self.player)
     {
         [self.player play];
-        [self.playButton setTitle:@"Pause Recording" forState:UIControlStateNormal];
+        [self.playButton setTitle:@"Pause" forState:UIControlStateNormal];
     }
 }
+
 
 //player has finished playing the button’s title should be reset
 -(void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag
 {
-    [self.playButton setTitle:@"Play Recording" forState:UIControlStateNormal];
+    [self.playButton setTitle:@"Play" forState:UIControlStateNormal];
 }
 
 //methods for handling interruptions for both the audio and the recorder
@@ -191,6 +220,34 @@
     {
         [recorder record];
     }
+}
+
+
+
+- (IBAction)submitNoise:(id)sender {
+    
+    
+    NSString *userNoise = [NSString stringWithFormat: @"%i", finalSum];
+    
+    NSString *currentId = theAppDelegate.objectID;
+    
+    PFQuery *query = [PFQuery queryWithClassName:@"CheckIn"];
+    [query getObjectInBackgroundWithId:currentId block:^(PFObject *feedback, NSError *error) {
+        
+        [feedback setObject:userNoise forKey:@"avgNoiseLevel"];
+        
+        [feedback saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+            if (succeeded) {
+                
+                NSLog(@"User recorded %@ of noise", userNoise);
+                NSLog(@"Saved in Sound Monitor View.");
+                //NSLog(@"Current object ID checkin view: %@", currentId);
+                
+            } else {
+                NSLog(@"Something wrong happened: %@", error);
+            }
+        }];
+    }];
 }
 
 //OLD VERSION!!!

@@ -9,6 +9,9 @@
 #import "ViewController.h"
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
+#import <Parse/Parse.h>
+#import "AppDelegate.h"
+#define theAppDelegate ((AppDelegate *)[[UIApplication sharedApplication] delegate])
 
 @interface CaptureAudioViewController : ViewController <AVAudioPlayerDelegate, AVAudioRecorderDelegate>
 
@@ -29,10 +32,13 @@
 @property (weak, nonatomic) IBOutlet UILabel *averageFinalValueLabel;
 
 @property (weak, nonatomic) IBOutlet UIProgressView *equalizerBar;
+@property (weak, nonatomic) IBOutlet UIButton *submitNoiseButton;
 
 
 - (IBAction)toggleRecording:(id)sender;
 - (IBAction)togglePlaying:(id)sender;
+- (IBAction)submitNoise:(id)sender;
+
 
 @property (strong, nonatomic) AVAudioPlayer *player;
 @property (strong, nonatomic) AVAudioRecorder *recorder;

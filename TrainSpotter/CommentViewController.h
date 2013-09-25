@@ -12,7 +12,7 @@
 #import "AppDelegate.h"
 #define theAppDelegate ((AppDelegate *)[[UIApplication sharedApplication] delegate])
 
-@interface CommentViewController : UIViewController
+@interface CommentViewController : UIViewController <UIAlertViewDelegate>
 
 @property (weak, nonatomic) IBOutlet UITextView *commentView;
 @property (weak, nonatomic) NSString *currentObjectId;
