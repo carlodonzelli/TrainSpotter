@@ -27,21 +27,26 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
     //initializing location strings
-    _locationState = [[NSString alloc] init];
-    _locationCity = [[NSString alloc] init];
-    _destinationLocationState = [[NSString alloc] init];
-    _destinationLocationCity = [[NSString alloc] init];
+    self.locationState = [[NSString alloc] init];
+    self.locationCity = [[NSString alloc] init];
+    self.destinationLocationState = [[NSString alloc] init];
+    self.destinationLocationCity = [[NSString alloc] init];
     
     
     //initializing location manager
-    _locationManager = [[CLLocationManager alloc] init];
-    _locationManager.delegate = self;
+    self.locationManager = [[CLLocationManager alloc] init];
+    self.locationManager.delegate = self;
     
     WeatherForecast *forecast = [[WeatherForecast alloc] init];
     self.forecast = forecast;
-    [self refreshView:self];
+    //[self refreshView:self];
+    if ( _selectedLocation.selectedSegmentIndex == 0 ) {
+        _locationManager.distanceFilter = 100;
+        [_locationManager startUpdatingLocation];
+        //[self refreshView:self];
+        
+    }
     
     
 }
@@ -57,14 +62,18 @@
 //method that invokes webservice, gets results and display data in the view
 - (IBAction)refreshView:(id)sender {
     
-    [_loadingActivityIndicator startAnimating];
+    //[_loadingActivityIndicator startAnimating];
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    hud.labelText = @"Fetching Data...";
+    hud.dimBackground = YES;
     
     //if current location is selected
     if ( _selectedLocation.selectedSegmentIndex == 0 ) {
         NSLog(@"Current Location selected");
-        NSLog( @ "updating for location = %@, %@ ", self.locationCity, self.locationState );
+        NSLog(@"Checking weather for %@, %@ ", self.locationCity, self.locationState );
         NSString *encodedState = [self.locationState stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
         NSString *encodedCity  = [self.locationCity stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        NSLog(@"Checked weather for %@, %@ ", encodedCity, encodedState );
         [self.forecast queryServiceWithState:encodedState andCity:encodedCity withParent:self];
     }
     if (_selectedLocation.selectedSegmentIndex == 1 ) {
@@ -74,14 +83,17 @@
         NSString *currentId = theAppDelegate.objectID;
         
         PFQuery *query = [PFQuery queryWithClassName:@"CheckIn"];
+        //PFObject *temp = [query getObjectWithId:currentId];
+        //NSString *currentDestinationLocation = [temp objectForKey:@"arrivalStation"];
         [query getObjectInBackgroundWithId:currentId block:^(PFObject *currentLoc, NSError *error) {
             // Do something with the returned PFObject in the gameScore variable.
             //NSLog(@"%@", currentLoc);
             NSString *currentDestinationLocation = [currentLoc objectForKey:@"arrivalStation"];
             NSLog(@"Checking the weather for %@", currentDestinationLocation);
-            NSString *convertedLocation = [self retrieveCoordinates:currentDestinationLocation];
-            NSLog(@"Destination Location: %@", convertedLocation);
-            [self.forecast queryServiceWithState:@"IT" andCity:convertedLocation withParent:self];
+            //NSString *convertedLocation =
+            [self retrieveCoordinates:currentDestinationLocation];
+            //NSLog(@"Destination Location: %@", convertedLocation);
+            //[self.forecast queryServiceWithState:@"IT" andCity:convertedLocation withParent:self];
             
         }];
     }
@@ -90,39 +102,28 @@
 
 
 
-- (NSString *)retrieveCoordinates:(NSString *)cityInput {
+- (void)retrieveCoordinates:(NSString *)cityInput {
     
-    //NSString *result = [[NSString alloc] initWithFormat:@"Milano"];
-    
-    //NSString *destinationAddress = @"Milano";
     CLGeocoder *forwardGeo = [[CLGeocoder alloc] init];
+    
     [forwardGeo geocodeAddressString:cityInput completionHandler:^(NSArray* placemarks, NSError* error){
         for (CLPlacemark *placemark in placemarks) {
-            //NSLog(@"Placemark is %@", placemark);
-            //NSLog(@"FOTTUTA LATITUDINE: %f", placemark.location.coordinate.longitude);
-            
             self.latitude = [NSNumber numberWithDouble:placemark.location.coordinate.latitude];
             self.longitude = [NSNumber numberWithDouble:placemark.location.coordinate.longitude];
-            //NSLog(@"FOTTUTA LAT: %@, FOTTUTA LONG: %@", _latitude, _longitude);
         }
-        
+        CLLocation *tempLocation = [[CLLocation alloc] initWithLatitude:self.latitude.doubleValue longitude:self.longitude.doubleValue];
+        CLGeocoder *reverseGeocoder = [[CLGeocoder alloc] init];
+        [reverseGeocoder reverseGeocodeLocation:tempLocation completionHandler: ^(NSArray *placemarks, NSError *error) {
+            CLPlacemark *placemark = [placemarks objectAtIndex:0];
+            
+            dispatch_async( dispatch_get_main_queue(), ^{
+                self.destinationLocationState = placemark.administrativeArea;
+                self.destinationLocationCity = placemark.locality;
+                NSLog(@"Destination Location: %@", self.destinationLocationCity);
+                [self.forecast queryServiceWithState:@"IT" andCity:self.destinationLocationCity withParent:self];
+            });
+        }];
     }];
-    
-    //NSLog(@"LAT: %@, LONG: %@", _latitude, _longitude);
-    
-    CLLocation *tempLocation = [[CLLocation alloc] initWithLatitude:_latitude.doubleValue longitude:_longitude.doubleValue];
-    CLGeocoder *reverseGeocoder = [[CLGeocoder alloc] init];
-    [reverseGeocoder reverseGeocodeLocation:tempLocation completionHandler: ^(NSArray *placemarks, NSError *error) {
-        CLPlacemark *placemark = [placemarks objectAtIndex:0];
-        //NSLog(@"%@",[NSString stringWithFormat:@"%@,%@", placemark.locality, placemark.administrativeArea] );
-        
-        dispatch_async( dispatch_get_main_queue(), ^{
-            self.destinationLocationState = placemark.administrativeArea;
-            self.destinationLocationCity = placemark.locality;
-        });
-    }];
-    
-    return self.destinationLocationCity;
 }
 
 //method that updates UI elements
@@ -140,9 +141,10 @@
     _humidityLabel.text = [NSString stringWithFormat:@"%@",self.forecast.humidity];
     _windLabel.text = self.forecast.wind;
     
-    [_loadingActivityIndicator stopAnimating];
+    //[_loadingActivityIndicator stopAnimating];
+    [MBProgressHUD hideHUDForView:self.view animated:YES];
     
-    NSLog(@"View UPDATED");
+    NSLog(@"Weather View Updated");
 }
 
 #pragma mark CLLocationManager Methods
@@ -150,7 +152,7 @@
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
 {
     //NSLog(@"Location: %@", [newLocation description]);
-    NSLog(@"Entering update location delegate");
+    NSLog(@"Entering Update Location Delegate");
     
     CLLocationCoordinate2D newCoordinate = [newLocation coordinate];
     CLLocationCoordinate2D oldCoordinate = [oldLocation coordinate];
@@ -165,9 +167,12 @@
     //    NSLog(@"Test: %d", test);
     
     if ( newLocation != oldLocation ){
-        NSLog(@"new location found");
+        
+        NSLog(@"New Location Found!");
+        
         CLGeocoder *geocoder = [[CLGeocoder alloc] init];
         [geocoder reverseGeocodeLocation:newLocation completionHandler: ^(NSArray *placemarks, NSError *error) {
+            
             CLPlacemark *placemark = [placemarks objectAtIndex:0];
             NSLog(@"%@",[NSString stringWithFormat:@"%@,%@", placemark.locality, placemark.administrativeArea] );
             dispatch_async( dispatch_get_main_queue(), ^{
@@ -182,19 +187,30 @@
 //delegate method to handle any errors that occur
 - (void)locationManager:(CLLocationManager *)manager
        didFailWithError:(NSError *)error {
-    NSLog(@"Error: %@", [error description]);
+    NSLog(@"Error in Location Manager!: %@", [error description]);
 }
 
 //method implemented by the segmented controller
 - (IBAction)switchLocation:(id)sender {
     
+    //current location
     if ( _selectedLocation.selectedSegmentIndex == 0 ) {
+        
+        //create location manager only if there isn't another one
+        if (self.locationManager == nil) {
+            //create location manager
+            self.locationManager = [CLLocationManager new];
+            
+        }
+        //set its delegate
+        [self.locationManager setDelegate:self];
         _locationManager.distanceFilter = 100;
         [_locationManager startUpdatingLocation];
         [self refreshView:self];
         
     }
     
+    //destination location
     if (_selectedLocation.selectedSegmentIndex == 1 ) {
         [_locationManager stopUpdatingLocation];
         [self refreshView:self];

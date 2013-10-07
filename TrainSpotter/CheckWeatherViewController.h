@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "WeatherForecast.h"
+#import "MBProgressHUD.h"
 #import <CoreLocation/CoreLocation.h>
 #import <Parse/Parse.h>
 #import "AppDelegate.h"
@@ -51,7 +52,7 @@
 
 - (IBAction)switchLocation:(id)sender;
 
-- (NSString *)retrieveCoordinates:(NSString *)cityInput;
+- (void)retrieveCoordinates:(NSString *)cityInput;
 - (IBAction)refreshView:(id)sender;
 - (void)updateView;
 
