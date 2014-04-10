@@ -14,13 +14,19 @@
 		<dict>
 			<key>CFBundleIconFiles</key>
 			<array>
-				<string>Icon.png</string>
-				<string>Icon@2x.png</string>
+				<string>icon_spotlight_retina_new</string>
+				<string>icon_spotlight_retina</string>
+				<string>icon_spotlight_nonretina</string>
+				<string>icon_retina_new</string>
+				<string>icon_retina</string>
+				<string>icon_nonretina</string>
+				<string>trainspotter_icon_retina.png</string>
+				<string>trainspotter_icon_standard.png</string>
 			</array>
 		</dict>
 	</dict>
 	<key>CFBundleIdentifier</key>
-	<string>com.carlodonzelli.${PRODUCT_NAME:rfc1034identifier}</string>
+	<string>com.carlodonzelli.${PRODUCT_NAME:rfc1034identifier}App</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -41,24 +47,27 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>1.0</string>
+	<string>1.1</string>
 	<key>FacebookAppID</key>
 	<string>643482029013536</string>
 	<key>FacebookDisplayName</key>
 	<string>TrainSpotter</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>UILaunchImageFile</key>
+	<string>Default</string>
 	<key>UIMainStoryboardFile</key>
 	<string>MainStoryboard</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
+		<string>still-camera</string>
 		<string>armv7</string>
 	</array>
+	<key>UIStatusBarHidden</key>
+	<true/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 </dict>
 </plist>

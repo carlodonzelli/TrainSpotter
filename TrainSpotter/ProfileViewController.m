@@ -27,6 +27,20 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
+    NSString *userName = [NSString stringWithFormat:@"%@", [PFUser currentUser].username];
+    self.loggedUserLabel.text = userName;
+    
+    PFQuery *query = [PFQuery queryWithClassName:@"CheckIn"];
+    [query whereKey:@"user" equalTo:userName];
+    [query countObjectsInBackgroundWithBlock:^(int count, NSError *error) {
+        if (!error) {
+            // The count request succeeded. Log the count
+            NSLog(@"Current user has done %d check-ins", count);
+            self.numCheckIn.text = [NSString stringWithFormat:@"%d", count];
+        } else {
+            NSLog(@"Count object request failed: %@", error);
+        }
+    }];
 }
 
 - (void)didReceiveMemoryWarning

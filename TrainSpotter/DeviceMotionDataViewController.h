@@ -35,6 +35,9 @@
 @property (strong, nonatomic) IBOutlet UILabel *xMagLabel;
 @property (strong, nonatomic) IBOutlet UILabel *yMagLabel;
 @property (strong, nonatomic) IBOutlet UILabel *zMagLabel;
+@property (weak, nonatomic) IBOutlet UIButton *startButton;
+@property (weak, nonatomic) IBOutlet UIButton *stopButton;
+
 
 @property (nonatomic, strong) CMMotionManager *motionManager;
 

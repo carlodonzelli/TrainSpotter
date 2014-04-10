@@ -23,10 +23,15 @@
     return self;
 }
 
+-(void)viewWillAppear:(BOOL)animated {
+    
+    [self.navigationItem setHidesBackButton:YES];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
+	//adding selector for keyboard actions
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(keyboardWasShown:)
                                                  name:UIKeyboardDidShowNotification object:nil];
@@ -34,7 +39,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(keyboardWillBeHidden:)
                                                  name:UIKeyboardWillHideNotification object:nil];
-
+    
 }
 
 //two method triggeref when keyboard is shown or dismissed, in order to resize the text input view
@@ -62,30 +67,40 @@
 }
 
 
-
+//saving the user's comment to the Parse object
 - (IBAction)submitComment:(id)sender {
     
-    NSString *userComment = [NSString stringWithFormat: @"%@", _commentView.text];
-    
-    NSString *currentId = theAppDelegate.objectID;
-    
-    PFQuery *query = [PFQuery queryWithClassName:@"CheckIn"];
-    [query getObjectInBackgroundWithId:currentId block:^(PFObject *feedback, NSError *error) {
+    if ([self.commentView.text length]) {
         
-        [feedback setObject:userComment forKey:@"userComment"];
+        NSString *userComment = [NSString stringWithFormat: @"%@", _commentView.text];
         
-        [feedback saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
-            if (succeeded) {
-                
-                NSLog(@"User said: %@", userComment);
-                NSLog(@"Saved in Comment View.");
-                //NSLog(@"Current object ID checkin view: %@", currentId);
-                
-            } else {
-                NSLog(@"Something wrong happened: %@", error);
-            }
+        NSString *currentId = theAppDelegate.objectID;
+        
+        //creating the query
+        PFQuery *query = [PFQuery queryWithClassName:@"CheckIn"];
+        [query getObjectInBackgroundWithId:currentId block:^(PFObject *feedback, NSError *error) {
+            
+            //setting data
+            [feedback setObject:userComment forKey:@"userComment"];
+            //saving data
+            [feedback saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+                if (succeeded) {
+                    
+                    NSLog(@"User said: %@", userComment);
+                    NSLog(@"Saved in Comment View.");
+                } else {
+                    NSLog(@"Something wrong happened: %@", error);
+                }
+            }];
         }];
-    }];    
+    } else {
+        //if the user don't write anything, he is notified
+        [[[UIAlertView alloc] initWithTitle:@"Error!"
+                                    message:@"Please write some comment."
+                                   delegate:self
+                          cancelButtonTitle:@"Ok8"
+                          otherButtonTitles:nil] show];
+    }
 }
 
 @end

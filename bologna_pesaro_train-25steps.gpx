@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<gpx version="1.1" creator="drive.py coded by basuke">
+	<wpt lat="44.494888" lon="11.342608">
+		<name>Bologna, Italy</name>
+	</wpt>
+    <wpt lat="44.508460" lon="11.355860"/>
+	<wpt lat="44.515830" lon="11.376120"/>
+	<wpt lat="44.481260" lon="11.421860"/>
+	<wpt lat="44.457585" lon="11.519150"/>
+	<wpt lat="44.422045" lon="11.618980"/>
+	<wpt lat="44.397420" lon="11.701640"/>
+	<wpt lat="44.358307" lon="11.805723"/>
+	<wpt lat="44.333110" lon="11.885730"/>
+	<wpt lat="44.292408" lon="11.989471"/>
+	<wpt lat="44.255205" lon="12.089340"/>
+	<wpt lat="44.225365" lon="12.167470"/>
+	<wpt lat="44.187661" lon="12.251465"/>
+	<wpt lat="44.141072" lon="12.355832"/>
+	<wpt lat="44.114345" lon="12.422320"/>
+	<wpt lat="44.067835" lon="12.497580"/>
+	<wpt lat="44.040955" lon="12.568810"/>
+	<wpt lat="43.997930" lon="12.622820"/>
+	<wpt lat="43.972300" lon="12.686870"/>
+	<wpt lat="43.958850" lon="12.750450"/>
+	<wpt lat="43.916595" lon="12.821250"/>
+	<wpt lat="43.899305" lon="12.840575"/>
+	<wpt lat="43.906550" lon="12.861410"/>
+	<wpt lat="43.910600" lon="12.889750"/>
+    <wpt lat="43.912365" lon="12.915407">
+		<name>Pesaro Pesaro and Urbino, Italy</name>
+	</wpt>
+</gpx>

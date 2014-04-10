@@ -13,16 +13,54 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    
+    //setting parse app data values
     [Parse setApplicationId:@"Y16kYQg7dJwIwMY6xPttapG0YnFJrhRtRgT5XzK8"
                   clientKey:@"LA7Y94D5StKwHLuFNYaJwxY8e9Iq7VlGSbyUkCIL"];
     
+    //enabling analytics
     [PFAnalytics trackAppOpenedWithLaunchOptions:launchOptions];
     
     // Override point for customization after application launch.
+    //[application setStatusBarHidden:NO];
+    
+    Reachability *reach = [Reachability reachabilityForInternetConnection];
+    NetworkStatus status = [reach currentReachabilityStatus];
+    
+    NSLog(@"Network Status: %@", [self stringFromStatus:status]);
+    
+    //checking the type of connection. if there is no connection user will be advised
+    if (status == NotReachable) {
+        
+        [[[UIAlertView alloc] initWithTitle:@"Network Error"
+                                   message:@"Can't establish a connection with the server!"
+                                   delegate:nil
+                         cancelButtonTitle:@"Dismiss"
+                         otherButtonTitles:nil] show];
+    }
     return YES;
 }
-							
+
+
+- (NSString *)stringFromStatus:(NetworkStatus) status {
+    NSString *string;
+    switch(status) {
+        case NotReachable:
+            string = @"Not Reachable";
+            break;
+        case ReachableViaWiFi:
+            string = @"Reachable via WiFi";
+            break;
+        case ReachableViaWWAN:
+            string = @"Reachable via WWAN";
+            break;
+        default:
+            string = @"Unknown";
+            break;
+    }
+    return string;
+}
+
+
 - (void)applicationWillResignActive:(UIApplication *)application
 {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -31,7 +69,7 @@
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
-    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
+    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
 }
 

@@ -30,6 +30,10 @@
 @property (weak, nonatomic) NSString *horizontalAcc;
 @property (weak, nonatomic) NSString *verticalAcc;
 
+@property (strong, nonatomic) NSTimer *recordTime;
+
+- (IBAction)dismissView:(id)sender;
+-(void)updateDataView;
 
 
 @end

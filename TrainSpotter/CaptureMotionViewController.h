@@ -12,7 +12,7 @@
 @interface CaptureMotionViewController : ViewController {
     
     CMMotionManager *motionManager;
-    NSOperation *queue;
+    NSOperationQueue *queue;
 }
 
 @property (weak, nonatomic) IBOutlet UILabel *xLabel;

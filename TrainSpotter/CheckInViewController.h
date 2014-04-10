@@ -8,10 +8,13 @@
 
 #import <UIKit/UIKit.h>
 #import <Parse/Parse.h>
+#import "MBProgressHUD.h"
 #import "AppDelegate.h"
 #define theAppDelegate ((AppDelegate *)[[UIApplication sharedApplication] delegate])
 
 @interface CheckInViewController : UIViewController
+
+@property (weak, nonatomic) IBOutlet MBProgressHUD *HUD;
 
 @property (weak, nonatomic) IBOutlet UILabel *loggedUser;
 
@@ -20,6 +23,7 @@
 @property (weak, nonatomic) IBOutlet UITextField *arrivalStation;
 
 @property (weak, nonatomic) IBOutlet UIScrollView *scroller;
+
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicatorView;
 
 - (IBAction)doCheckIn:(id)sender;

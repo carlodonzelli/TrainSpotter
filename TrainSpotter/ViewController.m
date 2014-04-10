@@ -19,21 +19,30 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
+    
+    UINavigationBar *navBar = [self.navigationController navigationBar];
+    [navBar setTranslucent:NO];
+    //navBar.barTintColor = [UIColor orangeColor];
+    //[navBar setTintColor:[UIColor blueColor]];
 }
 
 
-//GET STARTED BUTTON
+//Get Started Button: if there is a logged user you can go on, otherwise it will ask to login or signup
 - (IBAction)getStarted:(id)sender {
     
-    if (![PFUser currentUser]) { // No user logged in
+    // No user logged in
+    if (![PFUser currentUser]) {
+        
         // Create the log in view controller
-        MyLogInViewController *logInViewController = [[MyLogInViewController alloc] init];
-        logInViewController.fields = PFLogInFieldsUsernameAndPassword | PFLogInFieldsLogInButton | PFLogInFieldsSignUpButton |PFLogInFieldsPasswordForgotten | PFLogInFieldsDismissButton | PFLogInFieldsFacebook | PFLogInFieldsTwitter;
-        [logInViewController setDelegate:self]; // Set ourselves as the delegate
+        MyLogInViewController *logInViewController = [[MyLogInViewController alloc] init];                  //| PFLogInFieldsFacebook | PFLogInFieldsTwitter to add facebook and twitter
+        logInViewController.fields = PFLogInFieldsUsernameAndPassword | PFLogInFieldsLogInButton | PFLogInFieldsSignUpButton |PFLogInFieldsPasswordForgotten | PFLogInFieldsDismissButton;
+        // Set ourselves as the delegate
+        [logInViewController setDelegate:self];
         
         // Create the sign up view controller
         PFSignUpViewController *signUpViewController = [[PFSignUpViewController alloc] init];
-        [signUpViewController setDelegate:self]; // Set ourselves as the delegate
+        // Set ourselves as the delegate
+        [signUpViewController setDelegate:self];
         
         // Assign our sign up controller to be displayed from the login controller
         [logInViewController setSignUpController:signUpViewController];
@@ -46,11 +55,14 @@
         _username = _user.username;
         NSString *alertMsg = [NSString stringWithFormat: @"Currently logged in as: %@", _username];
         
-        [[[UIAlertView alloc] initWithTitle:@"Login"
+        
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Welcome back!"
                                     message:alertMsg
                                    delegate:self
-                          cancelButtonTitle:@"OK" //ok=0, logout=1, continue=2
-                          otherButtonTitles:@"Logout", @"Continue", nil] show];
+                          cancelButtonTitle:@"Dismiss" //ok=0, logout=1, continue=2
+                          otherButtonTitles:@"Logout", @"Continue", nil];
+        alert.tag = 0;
+        [alert show];
     }
 }
 
@@ -125,9 +137,15 @@
 
 // Sent to the delegate when a PFUser is signed up.
 - (void)signUpViewController:(PFSignUpViewController *)signUpController didSignUpUser:(PFUser *)user {
-    [self dismissViewControllerAnimated:YES completion:NULL]; // Dismiss the PFSignUpViewController
-    [self performSegueWithIdentifier:@"fromHomeToThankYou" sender:self];
-    NSLog(@"User successfully signed up!");
+    
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Success!"
+                                message:@"Thank YOU for your account registration. We sended you a confirmation e-mail. Please check your inbox and click on the link inside the e-mail for complete registration and activate your account!"
+                               delegate:self
+                      cancelButtonTitle:@"Ok"
+                      otherButtonTitles:nil];
+    alert.tag = 1;
+    [alert show];
+    //[self performSegueWithIdentifier:@"fromHomeToThankYou" sender:self];
 }
 
 // Sent to the delegate when the sign up attempt fails.
@@ -143,14 +161,29 @@
 //UIAlertView Delegate method
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     
+    if (alertView.tag == 0) {
+     
     //if user clic logout button
     if (buttonIndex == 1) {
         [PFUser logOut];
+        [[[UIAlertView alloc] initWithTitle:@"See you"
+                                    message:@"You successfully logged out!"
+                                   delegate:nil
+                          cancelButtonTitle:@"Ok"
+                          otherButtonTitles:nil] show];
+        
+        NSLog(@"User logged out");
     } else
         //if user clic continue
         if (buttonIndex == 2) {
         //NSLog(@"CONTINUE");
         [self performSegueWithIdentifier:@"fromHomeToCheckIn" sender:self];
+    }
+    }
+    
+    if (alertView.tag == 1) {
+        [self dismissViewControllerAnimated:YES completion:NULL]; // Dismiss the PFSignUpViewController
+        NSLog(@"User successfully signed up!");
     }
 }
 

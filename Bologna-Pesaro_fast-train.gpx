@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<gpx version="1.1" creator="Xcode"> 
+
+    <wpt lat="44.506136" lon="11.343405">
+         <name>Bologna</name>
+	</wpt>
+    <wpt lat="44.451696" lon="11.488599">
+        <name>Ozzano</name>
+	</wpt>
+    <wpt lat="44.408294" lon="11.598596">
+        <name>CastelSanPietro</name>
+	</wpt>
+    <wpt lat="44.359547" lon="11.718737">
+        <name>Imola</name>
+	</wpt>
+    <wpt lat="44.325398" lon="11.804016">
+        <name>CastelBolognese</name>
+	</wpt>
+    <wpt lat="44.293384" lon="11.883087">
+        <name>Faenza</name>
+	</wpt>
+    <wpt lat="44.224063" lon="12.054888">
+        <name>Forli</name>
+	</wpt>
+    <wpt lat="44.145177" lon="12.249793">
+        <name>Cesena</name>
+	</wpt>
+    <wpt lat="44.064234" lon="12.574330">
+        <name>Rimini</name>
+	</wpt>
+    <wpt lat="43.999124" lon="12.658412">
+        <name>Riccione</name>
+	</wpt>
+    <wpt lat="43.959638" lon="12.745031">
+        <name>Cattolica</name>
+	</wpt>
+    <wpt lat="43.906431" lon="12.903697">
+        <name>Pesaro</name>
+	</wpt>
+    
+</gpx>

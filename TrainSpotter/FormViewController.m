@@ -20,29 +20,33 @@
 int pageCount = 4;
 int currentPage = 0;
 int nextPage = 0;
-//PFObject *feedback;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        // Custom initialization
     }
     
     return self;
 }
 
+//hides the back button
+-(void)viewWillAppear:(BOOL)animated {
+    
+    [self.navigationItem setHidesBackButton:YES];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
-    //_ratingSegment
+    //setting view
     [_ratingSegment setSelectedSegmentIndex:-1];
     [_nextBarButton setEnabled:NO];
     _ratingArray = [[NSMutableArray alloc] initWithCapacity:4];
     
     //_scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, 320, 480)];
     
+    //creating scroll view
     _scrollView.delegate = self;
     _scrollView.pagingEnabled = YES;
     [_scrollView setScrollEnabled:NO];
@@ -83,18 +87,17 @@ int nextPage = 0;
         [_scrollView addSubview:questionField];
         
     }
-    //NSLog(@"Current object ID form view: %@", theAppDelegate.objectID);
-
 }
 
+
+//shows one question at time scrolling the view, when the last view is shown it saves data remotely
 - (IBAction)nextButtonPressed:(id)sender {
     
     [_ratingSegment setSelectedSegmentIndex:-1];
     
     currentPage = (_scrollView.contentOffset.x/280);
     nextPage = currentPage + 1;
-    //NSLog(@"Next page: %d", nextPage);
-    //NSLog(@"Current progress: %f", ((((float)nextPage + 1) * 2) / 10));
+    //setting the progress relative to which part of the scroll view in displayed
     _currentProgress.progress =  ((((float)nextPage + 1) * 2) / 10);
     
     [_scrollView scrollRectToVisible:CGRectMake(280*nextPage, _scrollView.frame.origin.y, _scrollView.frame.size.width, _scrollView.frame.size.height) animated:YES];
@@ -103,6 +106,7 @@ int nextPage = 0;
     //    NSLog(@"current width: %f", _scrollView.frame.size.width);
     //    NSLog(@"current height: %f", _scrollView.frame.size.height);
     [_nextBarButton setEnabled:NO];
+    [_nextBarButton setTintColor:[UIColor lightGrayColor]];
     
     //going to the last question to the last step of the survey
     if (nextPage == 4) {
@@ -118,16 +122,17 @@ int nextPage = 0;
         
         NSString *currentId = theAppDelegate.objectID;
         
+        //creating the query for the specified class and objectID
         PFQuery *query = [PFQuery queryWithClassName:@"CheckIn"];
         [query getObjectInBackgroundWithId:currentId block:^(PFObject *feedback, NSError *error) {
             
-            // Now let's update it with some new data.
+            //setting new data
             [feedback setObject:cleaningRate forKey:@"cleaningValue"];
             [feedback setObject:stinkRate forKey:@"stinkValue"];
             [feedback setObject:crowdingRate forKey:@"crowdingValue"];
             [feedback setObject:qualityRate forKey:@"qualityValue"];
-            //[feedback setObject:user forKey:@"user"];
-            
+
+            //updating object data
             [feedback saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
                 if (succeeded) {
                     NSLog(@"Saved in FormView.");
@@ -137,19 +142,10 @@ int nextPage = 0;
                 } else {
                     NSLog(@"Something wrong happened: %@", error);
                 }
-            }];            
+            }];
         }];
     }
 }
-
-////method to pass data from this view to the comment view
-//-(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-//    
-//    CommentViewController *commentView = [segue destinationViewController];
-//    commentView.currentObjectId = [feedback objectId];
-//    
-//}
-
 
 
 - (void)didReceiveMemoryWarning
@@ -158,17 +154,15 @@ int nextPage = 0;
     // Dispose of any resources that can be recreated.
 }
 
+
+//save the selected value into an array and enable going to the next question
 - (IBAction)selectRate:(id)sender {
     
-    //NSLog(@"Current page: %d", currentPage);
-    //NSLog(@"Next page: %d", nextPage);
-    
     NSString *value = [_ratingSegment titleForSegmentAtIndex:_ratingSegment.selectedSegmentIndex];
-    //NSLog(@"Selected Value: %@", value);
-    
     [_ratingArray addObject:value];
     
     [_nextBarButton setEnabled:YES];
+    [_nextBarButton setTintColor:[UIColor greenColor]];
     
 }
 

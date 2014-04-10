@@ -27,11 +27,16 @@
     return self;
 }
 
+-(void)viewWillAppear:(BOOL)animated {
+    
+    [self.navigationItem setHidesBackButton:YES];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
-    self.photoInfoLabel.text = @"No Image";
+    self.photoInfoLabel.text = @"No Image loaded, take a pic!";
     NSLog(@"Photo view loaded");
 }
 
@@ -67,11 +72,13 @@
     NSLog(@"Showing the camera picker");
 	return YES;
 }
+
+
 //when the user took a photo
 - (void) imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     
 	userImage = info[UIImagePickerControllerOriginalImage];
-	self.photoInfoLabel.text = [NSString stringWithFormat:@"Have image: %d x %d", (int) userImage.size.width, (int) userImage.size.height];
+	self.photoInfoLabel.text = [NSString stringWithFormat:@"Image captured at: %d x %d resolution", (int)userImage.size.width, (int)userImage.size.height];
 	self.imagePreview.image = userImage;
     NSLog(@"Image saved and previewed!");
 	[self dismissViewControllerAnimated:YES completion:nil];
@@ -91,7 +98,6 @@
 		UIImageWriteToSavedPhotosAlbum(self.imagePreview.image, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
 	} else {
         NSLog(@"No image to save :(");
-		//self.photoInfoLabel.text = @"Cannot save: no image.";
         [[[UIAlertView alloc] initWithTitle:@"Can't save!"
                                     message:@"First take a pic"
                                    delegate:nil
@@ -135,7 +141,7 @@
     [self.view addSubview:HUD];
     
     // Set determinate mode
-    HUD.mode = MBProgressHUDModeDeterminate;
+    HUD.mode = MBProgressHUDModeIndeterminate;
     HUD.delegate = self;
     HUD.labelText = @"Uploading image...";
     [HUD show:YES];
@@ -189,12 +195,9 @@
     } progressBlock:^(int percentDone) {
         // Update your progress spinner here. percentDone will be between 0 and 100.
         HUD.progress = (float)percentDone/100;
-        
-        
     }];
-    
-    
 }
+
 
 - (void)hudWasHidden:(MBProgressHUD *)hud {
     // Remove HUD from screen when the HUD hides

@@ -47,6 +47,9 @@
 
 - (IBAction)startUpdates:(id)sender {
     
+    [self.startButton setEnabled:NO];
+    [self.stopButton setEnabled:YES];
+    
     // Start device motion updates
     if ([self.motionManager isDeviceMotionAvailable])
     {
@@ -89,9 +92,12 @@
 
 - (IBAction)stopUpdates:(id)sender {
     
+    [self.startButton setEnabled:YES];
+    [self.stopButton setEnabled:NO];
+    
     if ([self.motionManager isDeviceMotionAvailable] && [self.motionManager isDeviceMotionActive])
     {
-        [self.motionManager stopDeviceMotionUpdates];
+        [self.motionManager stopDeviceMotionUpdates];  
     }
 }
 @end

@@ -24,7 +24,7 @@
 
 - (IBAction)takePhotoButton:(id)sender;
 - (IBAction)savePhotoButton:(id)sender;
-- (IBAction)uploadPhoto:(id)sender;
+//- (IBAction)uploadPhoto:(id)sender;
 
 - (void)uploadImage:(NSData *)imageData;
 

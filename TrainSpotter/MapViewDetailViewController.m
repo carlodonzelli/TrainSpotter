@@ -43,4 +43,12 @@
     // Dispose of any resources that can be recreated.
 }
 
+-(void)updateDataView {
+    
+}
+
+- (IBAction)dismissView:(id)sender {
+    
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
 @end

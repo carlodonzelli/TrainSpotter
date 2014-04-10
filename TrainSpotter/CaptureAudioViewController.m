@@ -41,10 +41,14 @@
     return self;
 }
 
+-(void)viewWillAppear:(BOOL)animated {
+    
+    [self.navigationItem setHidesBackButton:YES];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
     //defines file path for the recording
     self.recordedFilePath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"recording.wav"];
     
@@ -64,8 +68,6 @@
     //initializing final data
     peakValue = -160;
     averageValue = -160;
-    //_peakFinalValue = [NSNumber alloc];
-    //_averageFinalValue = [NSNumber alloc];
     _averageValues = [[NSMutableArray alloc] init];
     //[self.equalizerBar setFrame:CGRectMake(0, 0, 240, 25)];
     
@@ -76,8 +78,6 @@
     
     //assures that when the user taps the Record button later, the recording will start immediately.
     [self.recorder prepareToRecord];
-    //_recordTime = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(updateLabels) userInfo:nil repeats:YES];
-    
     NSLog(@"Successfully initialization");
 }
 
@@ -123,11 +123,13 @@
         NSNumber *tempNumber;
         float sum = 0;
         finalSum = 0;
+        
         for (tempNumber in _averageValues)
         {
             int aInt = [tempNumber intValue];
             sum = sum + aInt;
         }
+        
         finalSum = sum / [_averageValues count];
         self.averageFinalValueLabel.text =[NSString stringWithFormat:@"%i", finalSum];
         

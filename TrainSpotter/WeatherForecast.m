@@ -12,14 +12,13 @@
 
 @implementation WeatherForecast
 
-- (void)queryServiceWithState:(NSString *)state
-                      andCity:(NSString *)city
-                   withParent:(UIViewController *)controller
-{
+- (void)queryServiceWithState:(NSString *)state andCity:(NSString *)city withParent:(UIViewController *)controller {
+    
     viewController = (CheckWeatherViewController *)controller;
     responseData = [NSMutableData data];
     apiKey = @"86ce99f1b384fa98";
     
+    //example query http://api.wunderground.com/api/86ce99f1b384fa98/conditions/q/italy/bologna.xml
     NSString *url = [NSString stringWithFormat:@"http://api.wunderground.com/api/%@/conditions/q/%@/%@.xml", apiKey, state, city];
     theUrl = [NSURL URLWithString:url];
     
@@ -38,9 +37,7 @@
 }
 
 #pragma mark NSURLConnection Delegate Methods
-- (NSURLRequest *)connection:(NSURLConnection *)connection
-             willSendRequest:(NSURLRequest *)request
-            redirectResponse:(NSURLResponse *)redirectResponse {
+- (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse {
     @autoreleasepool {
         theUrl = [request URL];
     }
@@ -61,9 +58,7 @@
     NSLog( @"Error = %@", error );
 }
 
-// Retrieves the content of an XML node, such as the temperature, wind,
-// or humidity in the weather report.
-//
+// Retrieves the content of an XML node, such as the temperature, wind, or humidity in the weather report.
 - (NSString *)fetchContent:(NSArray *)nodes {
     NSString *result = @"";
     for ( NSDictionary *node in nodes ) {
@@ -76,13 +71,9 @@
     return result;
 }
 
-// For nodes that contain more than one value we are interested in,
-// this method fills an NSMutableArray with the values it finds.
-// For example, the forecast returns four days, so there will be
-// an array with four day names, an array with four forecast icons,
-// and so forth.
-//
+// For nodes that contain more than one value we are interested in, this method fills an NSMutableArray with the values it finds.
 - (void) populateArray:(NSMutableArray *)array fromNodes:(NSArray*)nodes {
+    
     for ( NSDictionary *node in nodes ) {
         for ( id key in node ) {
             if( [key isEqualToString:@"nodeContent"] ) {
@@ -97,44 +88,37 @@
     //NSString *content = [[NSString alloc] initWithBytes:[responseData bytes] length:[responseData length] encoding:NSUTF8StringEncoding];
    // NSLog( @"Data = %@", content );
     
-    //    ...Insert code to parse the content here...
+    //now parsini the retrieved content
     NSString *xpathQueryString;
     NSArray *nodes;
     
     xpathQueryString = @"//response/current_observation/display_location/full";
     nodes = PerformXMLXPathQuery(responseData, xpathQueryString);
     self.location = [self fetchContent:nodes];
-    //NSLog(@"location = %@", self.location);
     
     xpathQueryString = @"//response/current_observation/icon_url";
     nodes = PerformXMLXPathQuery(responseData, xpathQueryString);
     self.icon = [self fetchContent:nodes];
-    //NSLog(@"icon = %@", self.icon);
     
     xpathQueryString = @"//response/current_observation/weather";
     nodes = PerformXMLXPathQuery(responseData, xpathQueryString);
     self.condition = [self fetchContent:nodes];
-    //NSLog(@"Weather = %@", self.condition);
     
     xpathQueryString = @"//response/current_observation/temp_c";
     nodes = PerformXMLXPathQuery(responseData, xpathQueryString);
     self.centigrade = [self fetchContent:nodes];
-    //NSLog(@"Temp C° = %@", self.centigrade);
     
     xpathQueryString = @"//response/current_observation/temp_f";
     nodes = PerformXMLXPathQuery(responseData, xpathQueryString);
     self.fahrenheit = [self fetchContent:nodes];
-    //NSLog(@"Temp F° = %@", self.fahrenheit);
     
     xpathQueryString = @"//response/current_observation/relative_humidity";
     nodes = PerformXMLXPathQuery(responseData, xpathQueryString);
     self.humidity = [self fetchContent:nodes];
-    //NSLog(@"Humidity = %@", self.humidity);
     
     xpathQueryString = @"//response/current_observation/wind_string";
     nodes = PerformXMLXPathQuery(responseData, xpathQueryString);
     self.wind = [self fetchContent:nodes];
-    //NSLog(@"Wind = %@", self.wind);
     
     [viewController updateView];
     NSLog(@"Connection data retrieved");

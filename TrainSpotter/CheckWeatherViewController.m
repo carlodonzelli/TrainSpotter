@@ -105,7 +105,7 @@
 - (void)retrieveCoordinates:(NSString *)cityInput {
     
     CLGeocoder *forwardGeo = [[CLGeocoder alloc] init];
-    
+    //starting form city name, retrieving coordinates
     [forwardGeo geocodeAddressString:cityInput completionHandler:^(NSArray* placemarks, NSError* error){
         for (CLPlacemark *placemark in placemarks) {
             self.latitude = [NSNumber numberWithDouble:placemark.location.coordinate.latitude];
@@ -113,6 +113,7 @@
         }
         CLLocation *tempLocation = [[CLLocation alloc] initWithLatitude:self.latitude.doubleValue longitude:self.longitude.doubleValue];
         CLGeocoder *reverseGeocoder = [[CLGeocoder alloc] init];
+        //starting from coordinates, retrieving city name
         [reverseGeocoder reverseGeocodeLocation:tempLocation completionHandler: ^(NSArray *placemarks, NSError *error) {
             CLPlacemark *placemark = [placemarks objectAtIndex:0];
             
